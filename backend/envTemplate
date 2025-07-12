@@ -1,0 +1,2 @@
+PORT= // Port for the backend server
+MONGO_URI= // MongoDB connection string
