@@ -2,7 +2,9 @@ import React from 'react'
 
 const GreetingPage = () => {
   return (
-    <div>GreetingPage</div>
+    <div className='h-screen w-[90%] mx-auto'>
+      GreetingPage
+    </div>
   )
 }
 

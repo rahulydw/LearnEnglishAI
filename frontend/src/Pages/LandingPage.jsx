@@ -1,18 +1,36 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger, } from '@/components/ui/collapsible';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Button } from '@/components/ui/button';
-import { FaComments, FaPlay } from "react-icons/fa6";
-import { FaRobot, FaKeyboard, FaUsers, FaUserFriends, FaSearch, FaBookOpen, FaUserPlus, FaLightbulb, FaBook } from "react-icons/fa";
+import { FaComments, FaGoogle, FaPlay } from "react-icons/fa6";
+import { FaRobot, FaKeyboard, FaUsers, FaUserFriends, FaSearch, FaBookOpen, FaUserPlus, FaLightbulb, FaBook, FaArrowUp } from "react-icons/fa";
+import { IoIosHelpCircleOutline } from "react-icons/io";
+import { Github, Instagram, Linkedin, Loader2Icon, TwitterIcon } from 'lucide-react';
 import { Avatar } from '@/components/ui/avatar';
 import { AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
-import { Github, Instagram, Linkedin, TwitterIcon } from 'lucide-react';
-import {Tooltip,TooltipContent,TooltipTrigger} from "@/components/ui/tooltip"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import axios from 'axios';
+import { useForm } from 'react-hook-form'
+import ScrollToTopButton from '@/components/ScrollToTopButton';
+import CustomDialog from '@/components/CustomDialog';
+import GoogleAuth from '@/components/GoogleAuth';
+import { useNavigate } from 'react-router-dom';
+import { handleGoogleLogin } from '@/components/GoogleAuth';
+
 
 const LandingPage = () => {
   // State to manage open indexes for collapsible items
   const [openIndexes, setOpenIndexes] = useState([]);
-
+  // Reviews Data
+  const [reviews, setReviews] = useState([]);
+  // React Hook Form
+  const { register, handleSubmit, formState: { isSubmitting, errors }, reset } = useForm();
+  // Login & Signup Dialog
+  const [openDialog, setOpenDialog] = useState(false);
+  // Navigate route 
+  const navigate = useNavigate();
+  // Login with Gooogle Loader
+  const [loading, setLoading] = useState(false);
   // MenuList
   const menuList = [
     { name: "Home", link: "#home" },
@@ -131,10 +149,10 @@ const LandingPage = () => {
 
   // Footer Social Media Links
   const socialLinks = [
-    {icons: Github, link:"#", hover: "Github"},
-    {icons: Linkedin, link:"#", hover: "Linkedin"},
-    {icons: TwitterIcon, link:"#", hover: "Twitter"},
-    {icons: Instagram, link:"#", hover: "Instagram"},
+    { icons: Github, link: "#", hover: "Github" },
+    { icons: Linkedin, link: "#", hover: "Linkedin" },
+    { icons: TwitterIcon, link: "#", hover: "Twitter" },
+    { icons: Instagram, link: "#", hover: "Instagram" },
   ];
 
   // State to manage open indexes for collapsible items
@@ -145,6 +163,136 @@ const LandingPage = () => {
       setOpenIndexes([...openIndexes, index]);
     }
   };
+
+  // Contact Form :
+  const onSubmit = (data) => {
+    setTimeout(() => { }, 500)
+    console.log("Form Data:", data);
+    // yahan API call kar sakte ho
+    reset(); // form clear after submit
+  };
+
+  // Sigin With Google Btn action
+  const LoginWithgoogle = () => {
+    handleGoogleLogin();
+    setLoading(true);
+  }
+
+  // Login Form:
+  const onSubmitLoginForm = async (data) => {
+    try {
+      const response = await axios.post('/api/auth/login', data, {
+        withCredentials: true,
+      });
+
+      if (response.data.success) {
+        // ✅ User login success => redirect to dashboard
+        navigate('/chat');
+      }
+    } catch (error) {
+      console.error("Login failed:", error.response?.data?.message || error.message);
+    }
+  };
+
+  // // Dialog Content Login Form:
+  const dialogConfig = {
+    title: "Login to your account",
+    desc: "Enter your credentials to access your dashboard",
+    children: (
+      <div>
+        <div className='flex justify-center items-center'><Button className='cursor-pointer bg-blue-500 hover:bg-blue-600 text-white' onClick={LoginWithgoogle}>{loading ? (<div className='flex justify-center items-center'><Loader2Icon className="animate-spin h-4 w-4" /><span className='text-base font-tinos'>Logging in...</span></div>) : (<div className='flex justify-center items-center gap-2'><FaGoogle /><span className='text-center'>Login with Google</span></div>)}</Button></div>
+        <form onSubmit={handleSubmit(onSubmitLoginForm)} className="space-y-4">
+          {/* Email */}
+          <div className="space-y-1">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              Email Address
+            </label>
+            <input
+              type="email"
+              id="email"
+              placeholder="Enter your email"
+              {...register("email", {
+                required: "Email is required",
+                pattern: {
+                  value: /^\S+@\S+$/i,
+                  message: "Invalid email format",
+                },
+              })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+            {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
+          </div>
+
+          {/* Password */}
+          <div className="space-y-1">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              placeholder="Enter your password"
+              {...register("password", {
+                required: "Password is required",
+                minLength: {
+                  value: 6,
+                  message: "Minimum 6 characters required",
+                },
+              })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+            {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
+          </div>
+
+          {/* Submit Button */}
+          <Button
+            type="submit"
+            className="w-full font-semibold py-2 rounded-md transition duration-200 cursor-pointer"
+          >
+            Login
+          </Button>
+        </form>
+      </div>
+    ),
+  };
+
+  // Check User Is Not Already Login:
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await axios.get("/api/auth/login/success", {
+          withCredentials: true,
+        });
+        if (response.data.success) {
+          navigate('/chat');
+        } else {
+          navigate('/');
+        }
+
+      } catch (error) {
+        console.log(`error is Landing page Check Auttth : ${error}`)
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+  // Data Get using api:
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const responses = await axios.get("/api/v1/landing-page/reviews-latest");
+        if (responses.data) {
+          setReviews(responses.data.data);
+        }
+      } catch (error) {
+        console.error('Error fetching reviews:', error);
+      }
+    };
+
+    fetchReviews();
+  }, []);
+
   return (
     <div className='max-w-full flex flex-col gap-5'>
       {/* Header */}
@@ -158,7 +306,7 @@ const LandingPage = () => {
             <span className='text-2xl font-lobster tracking-wide text-neutral-600'>Chat-Club</span>
           </div>
           {/* MenuList */}
-          <ul className='hidden md:flex justify-center items-center'>
+          <ul className='hidden lg:flex justify-center items-center'>
             {menuList.map((item, index) => (
               <li key={index} className='relative group mx-4 text-neutral-600 hover:text-neutral-800 font-semibold cursor-pointer'>
                 <a href={item.link}>{item.name}</a>
@@ -168,32 +316,40 @@ const LandingPage = () => {
           </ul>
           {/* Action Button */}
           <div className='flex justify-center items-center text-md md:text-xl gap-5 [&>button]:cursor-pointer'>
-            <Button variant="outline">Login</Button>
-            <Button>Sign Up</Button>
+            <Button variant="outline" onClick={() => { setOpenDialog(prev => !prev) }} >Login</Button>
+            <GoogleAuth/>
           </div>
         </nav>
+        {/* Login And Signup Dialog */}
+        <CustomDialog
+          open={openDialog}
+          setOpen={setOpenDialog}
+          title={dialogConfig.title}
+          desc={dialogConfig.desc}
+        >
+          {dialogConfig.children}
+        </CustomDialog>
       </header>
 
       {/* Home Section */}
-      <section id='home' className='h-[calc(100vh-60px)] w-full flex justify-center items-start md:items-center bg-[#fff]'>
-        <article className='w-full pl-5 pr-4 md:px-0 md:w-[80%] flex flex-col md:flex-row mt-20 md:mt-0'>
+      <section id='home' className='h-[calc(100vh-60px)] w-full flex justify-center items-start lg:items-center bg-[#fff]'>
+        <article className='w-full pl-5 pr-4 md:px-0 md:w-[80%] flex flex-col lg:flex-row mt-10 sm:mt-0 md:mt-0'>
           {/* Left Box */}
-          <article className='w-full md:w-2/3'>
-            <h1 className='w-full text-2xl md:text-6xl font-bold md:font-semibold font-Poppins tracking-wide md:w-[80%] '>Learn English Through Natural Hinglish Conversations</h1>
-            <p className='text-sm md:text-lg font-semibold tracking-wider w-[90%] md:w-[70%] text-neutral-700 mt-5'>Practice English with Hinglish Conversations. Proven by educators, this is the easiest way to learn daily-use words and real-life speaking skills naturally.</p>
-            <div className='flex justify-start items-center my-8 gap-6 md:gap-10 [&>button]:cursor-pointer'>
+          <article className='w-full sm:h-1/2 lg:w-2/3'>
+            <h1 className='w-full text-2xl sm:text-4xl lg:text-6xl font-bold md:font-semibold font-Poppins tracking-wide lg:w-[80%] md:leading-12 lg:leading-18'>Learn English Through Natural Hinglish Conversations</h1>
+            <p className='text-sm md:text-lg font-semibold tracking-wider w-[90%] md:w-[80%] lg:w-[70%] text-neutral-700 mt-5 leading-6 md:leading-8'>Practice English with Hinglish Conversations. Proven by educators, this is the easiest way to learn daily-use words and real-life speaking skills naturally.</p>
+            <div className='flex justify-start items-center my-8 gap-6 sm:gap-15 md:gap-10 [&>button]:cursor-pointer'>
               <Button className='px-8'>Start Learning</Button>
               <Button variant="outline" className='ml-3 px-4 flex justify-center items-center gap-2'><FaPlay /><span>Watch Demo Free</span></Button>
             </div>
           </article>
           {/* Right Box */}
-          <article className='w-full md:w-1/3 flex justify-center items-center'>
-            <AspectRatio ratio={1 / 1} className='w-full h-full mt-15 md:mt-0'>
+          <article className='w-full sm:h-1/2 lg:w-2/3 flex justify-center items-center'>
+            <AspectRatio ratio={1/1} className='w-full h-full mt-15 sm:my-4 md:mt-0 sm:flex justify-center items-start'>
               <img
-                src="/img2.jpg"
+                src="/final1.jpg"
                 alt="Photo by Drew Beamer"
-                fill
-                className="h-full w-full rounded-lg object-cover dark:brightness-[0.2] dark:grayscale"
+                className="w-full sm:w-[80%] h-full sm:h-[80%] lg:h-full lg:w-full rounded-lg object-cover dark:brightness-[0.2] dark:grayscale"
               />
             </AspectRatio>
           </article>
@@ -247,13 +403,13 @@ const LandingPage = () => {
       </section>
 
       {/* Why Us Section */}
-      <section id='why-us' className='w-full md:h-screen flex flex-col justify-center items-center mt-10 bg-[#fff]'>
+      <section id='why-us' className='w-full lg:h-screen flex flex-col justify-center items-center mt-10 bg-[#fff]'>
         <div className='flex flex-col justify-center items-center mb-5'>
           <span className='text-2xl md:text-3xl font-semibold font-poppins tracking-wide text-neutral-700'>Why Choose Us?</span>
           <p className='text-sm md:text-lg font-semibold font-tinos text-neutral-600'>Flexible, natural learning that fits your life.</p>
         </div>
         {/* Benefits Container */}
-        <div className='w-full md:w-[80%] flex flex-col md:flex-row justify-center md:items-center gap-5'>
+        <div className='w-full lg:w-[80%] flex flex-col md:flex-row justify-center lg:items-center gap-5 mt-10'>
           {/* Left Collapsible Box */}
           <article className='w-full md:w-1/2 flex flex-col justify-center items-center gap-5 px-5'>
             {benefitsList.map((benefit, index) => (
@@ -278,11 +434,10 @@ const LandingPage = () => {
 
           {/* Right Image Container */}
           <div className='hidden w-full md:w-1/2 md:flex justify-center items-center'>
-            <AspectRatio ratio={1 / 1} className='w-full h-full mt-15 md:mt-0'>
+            <AspectRatio ratio={16 / 9} className='w-full h-full mt-15 md:mt-0'>
               <img
-                src="/img2.jpg"
+                src="/final3.jpg"
                 alt="Photo by Drew Beamer"
-                fill
                 className="h-full w-full rounded-lg object-cover dark:brightness-[0.2] dark:grayscale"
               />
             </AspectRatio>
@@ -297,10 +452,10 @@ const LandingPage = () => {
           <p className='text-sm md:text-lg font-semibold font-tinos text-neutral-600'>Real feedback from real users.</p>
         </div>
         {/* Reviews grid */}
-        <div className='w-[80%] grid grid-cols-1 md:grid-cols-4 gap-5'>
-          {reviewsList.map((review, index) => (
-            <div key={index} className='bg-white p-5 rounded-lg shadow-md'>
-              <Avatar>
+        <div className='w-[80%] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5'>
+          {reviews.map((review, index) => (
+            <div key={index} className='bg-white p-5 rounded-lg shadow-md hover:shadow-2xl'>
+              <Avatar className="hover:scale-150 transition-all duration-300 ease-linear cursor-pointer">
                 <AvatarImage src={review.avatar} alt={review.name} />
                 <AvatarFallback className='w-16 h-16 rounded-full'> {review.name.charAt(0)} </AvatarFallback>
               </Avatar>
@@ -317,7 +472,7 @@ const LandingPage = () => {
       </section>
 
       {/* Contact Section */}
-      <section className='w-full md:h-[60vh] flex flex-col justify-center items-center bg-[#fff]'>
+      <section id='contact' className='w-full md:h-[60vh] flex flex-col justify-center items-center bg-[#fff]'>
         <div className='flex flex-col justify-center items-center mb-10'>
           <span className='text-2xl md:text-3xl font-semibold font-poppins tracking-wide text-neutral-700'>Get in Touch</span>
           <p className='text-sm md:text-lg font-semibold font-tinos text-neutral-600'>We'd love to hear from you!</p>
@@ -325,19 +480,19 @@ const LandingPage = () => {
         {/* Container Box */}
         <div className='w-full md:w-[80%] flex flex-col md:flex-row justify-between items-start gap-5 px-5'>
           {/* Left Box */}
-          <article className='hidden w-full md:w-1/3 md:flex flex-col justify-center items-start gap-5'>
+          <article className='hidden w-full md:w-1/3 lg:flex flex-col justify-center items-start gap-5'>
             {/* About Chat Club */}
             <h3 className='text-lg font-semibold text-neutral-800 font-poppins'>About Chat Club</h3>
             <p className='text-lg text-neutral-800 font-playfair'>Chat-Club is a modern, AI-powered language learning platform designed for real-world use. Whether you want to improve your English, practice Hindi, or learn through Hinglish conversations - Chat-Club helps you do it naturally.</p>
           </article>
           {/* Right Box */}
-          <article className='w-full md:w-2/3 flex flex-col justify-center items-end gap-5'>
+          <article className='w-full lg:w-2/3 flex flex-col justify-center items-center lg:items-end gap-5'>
             {/* Contact Form  */}
-            <form className='w-full md:w-[80%] flex flex-col gap-5'>
-              <input type="text" placeholder="Your Name" className='p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500' />
-              <input type="email" placeholder="Your Email" className='p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500' />
-              <textarea placeholder="Your Message" className='p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-32'></textarea>
-              <Button type="submit" className='px-8 cursor-pointer'>Send Message</Button>
+            <form onSubmit={handleSubmit(onSubmit)} className='w-full lg:w-[80%] flex flex-col gap-5'>
+              <input {...register("name")} type="text" placeholder="Your Name" className='p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500' />
+              <input {...register("email")} type="email" placeholder="Your Email" className='p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500' />
+              <textarea {...register("msg")} placeholder="Your Message" className='p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-32'></textarea>
+              <Button type="submit" disabled={isSubmitting} className='px-8 cursor-pointer di'>{isSubmitting ? "Sending..." : "Send Message"}</Button>
             </form>
           </article>
         </div>
@@ -349,7 +504,7 @@ const LandingPage = () => {
           {/* Box-1 */}
           <div className='md:w-md flex justify-center items-start flex-col'>
             <div className='flex justify-start items-center gap-3 md:gap-4 cursor-pointer'>
-              <span className='flex justify-center items-center px-2 w-8 h-8 rounded-md text-white text-xl bg-neutral-800 hover:bg-neutral-900'>
+              <span className='flex justify-center items-center px-2 w-8 h-8 rounded-md text-white bg-neutral-800 hover:bg-neutral-900'>
                 <FaComments />
               </span>
               <span className='text-2xl font-lobster tracking-wide text-neutral-200'>Chat-Club</span>
@@ -376,29 +531,31 @@ const LandingPage = () => {
 
           {/* Box-3 */}
           <div className='md:w-md flex justify-center md:justify-end items-center md:items-start py-5 md:py-0'>
-                <ul className='grid  grid-cols-4  text-neutral-200 gap-5 [&>li]:hover:text-blue-700 [&>li]:cursor-pointer'>
-                  {socialLinks.map((link, index) => {
-                    const Icons = link.icons;
-                    return (
-                      <Tooltip key={index} >
-                        <TooltipTrigger>
-                          <li className='flex justify-start items-center gap-2 text-lg font-semibold cursor-pointer'>
-                            <Icons className='text-xl hover:text-blue-700'/>
-                        </li>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <a href={link.link} target="_blank" rel="noopener noreferrer" className='text-white-600 hover:underline'>{link.hover}</a>
-                      </TooltipContent>
-                    </Tooltip>
-                  )})}
-                </ul>
+            <ul className='grid  grid-cols-4  text-neutral-200 gap-5 [&>li]:hover:text-blue-700 [&>li]:cursor-pointer'>
+              {socialLinks.map((link, index) => {
+                const Icons = link.icons;
+                return (
+                  <Tooltip key={index} >
+                    <TooltipTrigger>
+                      <li className='flex justify-start items-center gap-2 text-lg font-semibold cursor-pointer'>
+                        <Icons className='text-xl hover:text-blue-700' />
+                      </li>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <a href={link.link} target="_blank" rel="noopener noreferrer" className='text-white-600 hover:underline'>{link.hover}</a>
+                    </TooltipContent>
+                  </Tooltip>
+                )
+              })}
+            </ul>
           </div>
-
         </div>
 
         {/* Bottom Footer */}
         <footer className='pb-2 text-sm text-neutral-100 text-center font-semibold tracking-wide'>Designed & Developed by <a href="https://linkedin.com/in/iamrahulydw" target="_blank" rel="noopener noreferrer" className='text-sky-200 hover:underline'>Rahul Kumar</a> © {new Date().getFullYear()}</footer>
       </div>
+      {/* Help Sticky Button */}
+      <ScrollToTopButton />
     </div>
   )
 }

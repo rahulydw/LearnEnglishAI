@@ -1,34 +1,38 @@
-import {createBrowserRouter, RouterProvider} from 'react-router-dom'
-import LandingPage from './Pages/LandingPage';
-import ChatLayout from './Pages/ChatLayout';
-import GreetingPage from './Pages/GreetingPage';
-import ChatPage from './Pages/ChatPage';
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import LandingPage from "./Pages/LandingPage";
+import ChatLayout from "./Pages/ChatLayout";
+import GreetingPage from "./Pages/GreetingPage";
+import ChatPage from "./Pages/ChatPage";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const App = () => {
   const routes = createBrowserRouter([
     {
       path: "/",
-      element: <LandingPage />
+      element: <LandingPage />,
     },
     {
       path: "/chat",
-      element: <ChatLayout />,
+      element: <ProtectedRoute />, 
       children: [
         {
-          index: true,
-          element: <GreetingPage />
+          element: <ChatLayout />, 
+          children: [
+            {
+              index: true,
+              element: <GreetingPage />,
+            },
+            {
+              path: ":id",
+              element: <ChatPage />,
+            },
+          ],
         },
-        {
-          path: "/chat/:id",
-          element: <ChatPage />
-        }
-      ]
-    }
+      ],
+    },
   ]);
 
-  return (
-    <RouterProvider router={routes} />
-  )
-}
+  return <RouterProvider router={routes} />;
+};
 
-export default App
+export default App;
