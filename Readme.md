@@ -52,6 +52,6 @@ ChatClub aims to **teach English through your daily Hinglish chats** — no bori
 - **Voice/Audio:** (Planned) Text-to-Speech API
 
 ---
-![Landing Page](./screenshots/landingpage.png)
+![Landing Page](./screenshots/LandingPage-1.png)
 
 ### 🚀 Made with 💖 by [Rahul Kumar](https://github.com/rahulydw)
