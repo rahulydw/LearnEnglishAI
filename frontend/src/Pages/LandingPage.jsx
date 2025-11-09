@@ -15,7 +15,7 @@ import ScrollToTopButton from '@/components/ScrollToTopButton';
 import CustomDialog from '@/components/CustomDialog';
 import GoogleAuth from '@/components/GoogleAuth';
 import { useNavigate } from 'react-router-dom';
-import { handleGoogleLogin } from '@/components/GoogleAuth';
+import { checkAuth, handleGoogleLogin, LatestReviews } from '@/services/AuthServices';
 
 
 const LandingPage = () => {
@@ -230,38 +230,32 @@ const LandingPage = () => {
 
   // Check User Is Not Already Login:
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const response = await axios.get("/api/auth/login/success", {
-          withCredentials: true,
-        });
-        if (response.data.success) {
-          navigate('/chat');
-        } else {
-          navigate('/');
-        }
-      } catch (error) {
-        console.log(`Landing page Check Auth : ${error}`)
+  const check = async () => {
+    try {
+      const res = await checkAuth(); 
+      if (res.success) {
+        navigate("/chat");
+      } else {
+        navigate("/");
       }
-    };
+    } catch (err) {
+      navigate("/");
+    }
+  };
 
-    checkAuth();
-  }, []);
+  check();
+}, []);
+
 
   // Data Get using api:
   useEffect(() => {
-    const fetchReviews = async () => {
-      try {
-        const responses = await axios.get("/api/v1/landing-page/reviews-latest");
-        if (responses.data) {
-          setReviews(responses.data.data);
-        }
-      } catch (error) {
-        console.error('Error fetching reviews:', error);
+    const Reviews = async () => {
+      const responses = await LatestReviews();
+      if (responses.success) {
+        setReviews(responses.data);
       }
     };
-
-    fetchReviews();
+    Reviews();
   }, []);
 
   return (
@@ -288,7 +282,7 @@ const LandingPage = () => {
           {/* Action Button */}
           <div className='flex justify-center items-center text-md md:text-xl gap-5 [&>button]:cursor-pointer'>
             <Button variant="outline" onClick={() => { setOpenDialog(prev => !prev) }} >Login</Button>
-            <GoogleAuth/>
+            <GoogleAuth />
           </div>
         </nav>
         {/* Login And Signup Dialog */}
@@ -316,7 +310,7 @@ const LandingPage = () => {
           </article>
           {/* Right Box */}
           <article className='w-full sm:h-1/2 lg:w-2/3 flex justify-center items-center'>
-            <AspectRatio ratio={1/1} className='w-full h-full mt-15 sm:my-4 md:mt-0 sm:flex justify-center items-start'>
+            <AspectRatio ratio={1 / 1} className='w-full h-full mt-15 sm:my-4 md:mt-0 sm:flex justify-center items-start'>
               <img
                 src="/final1.jpg"
                 alt="Photo by Drew Beamer"

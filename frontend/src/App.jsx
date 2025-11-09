@@ -5,6 +5,7 @@ import GreetingPage from "./Pages/GreetingPage";
 import ChatPage from "./Pages/ChatPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import SocketContextProvider from "./context/SocketContextProvider";
+import { Toaster } from 'react-hot-toast';
 
 const App = () => {
   const routes = createBrowserRouter([
@@ -14,10 +15,10 @@ const App = () => {
     },
     {
       path: "/chat",
-      element: <ProtectedRoute />, 
+      element: <ProtectedRoute />,
       children: [
         {
-          element: <SocketContextProvider><ChatLayout /></SocketContextProvider>, 
+          element: <SocketContextProvider><ChatLayout /></SocketContextProvider>,
           children: [
             {
               index: true,
@@ -33,7 +34,10 @@ const App = () => {
     },
   ]);
 
-  return <RouterProvider router={routes} />;
+  return <>
+    <RouterProvider router={routes} />
+    <Toaster position="top-right" reverseOrder={false} />
+  </>;
 };
 
 export default App;

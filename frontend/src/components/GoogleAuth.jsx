@@ -1,11 +1,9 @@
 import React, { useState } from 'react'
 import { Loader2Icon } from 'lucide-react';
 import { Button } from './ui/button';
+import { handleGoogleLogin } from '../services/AuthServices'
 
-//  Google Login button click
-export const handleGoogleLogin = () => {
-  window.open('/api/auth/google', '_self');
-};
+
 const GoogleAuth = () => {
   const [loading, setLoading] = useState(false);
   const btnClick = () => {

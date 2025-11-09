@@ -1,29 +1,25 @@
 // components/ProtectedRoute.jsx
 import { Navigate, Outlet } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
-import axios from "axios";
-import {userContext} from "@/context/UserContextProvider";
+import { userContext } from "@/context/UserContextProvider";
+import { checkAuth } from '../services/AuthServices';
+
 
 const ProtectedRoute = () => {
   const [isAuth, setIsAuth] = useState(null);
-  // user Context Data set:
-  const {setUser} = useContext(userContext);
+  const { setUser } = useContext(userContext);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const response = await axios.get("/api/auth/login/success", {
-          withCredentials: true,
-        });
-        console.log(`data is:${response.data.user.name} , ${response.data.success}`)
-        setUser(response.data.user);
-        setIsAuth(response.data.success);
-      } catch (error) {
-        setIsAuth(false);
+    const AuthCheck = async () => {
+      const res = await checkAuth();
+      // console.log(`data is:${res.data.user.name} , ${res.data.success}`)
+      if (res.success) {
+        setUser(res.data);
+        setIsAuth(res.success);
       }
+      setIsAuth(false);
     };
-
-    checkAuth();
+    AuthCheck();
   }, []);
 
   if (isAuth === null) return <div>Loading...</div>;

@@ -1,70 +1,77 @@
-import User from '../../models/User.model.js';
+import User from "../../models/User.model.js";
+import ResponseHandler from "../../utils/ResponseHandler.js";
 
 const loginController = async (req, res) => {
   try {
-    // 1: Agar user already login hai
+    // 1: Already logged in
     if (req.user) {
       return res.redirect(`${process.env.CLIENT_URL}/chat`);
     }
 
-    // 2: Body valid check
+    // 2: Validate body
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({
+      return new ResponseHandler({
         success: false,
-        message: 'Email and password are required'
-      });
+        statusCode: 400,
+        message: "Email and password are required",
+      }).send(res);
     }
 
-    // 3: User find by email
+    // 3: Find user
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(404).json({
+      return new ResponseHandler({
         success: false,
-        message: 'User not found'
-      });
+        statusCode: 404,
+        message: "User not found",
+      }).send(res);
     }
 
-    // 4: Password match check
+    // 4: Password check
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      return res.status(401).json({
+      return new ResponseHandler({
         success: false,
-        message: 'Invalid credentials'
-      });
+        statusCode: 401,
+        message: "Invalid credentials",
+      }).send(res);
     }
 
-    // 5: Generate JWT (now includes id)
+    // 5: Generate JWT (contains id)
     const token = user.generateJWT();
 
-    // 6: Cookie set — Google login ke SAME settings
-    res.cookie('token', token, {
+    // 6: Cookie (same as Google OAuth)
+    res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'Lax',          // FIXED (was "strict")
-      maxAge: 7 * 24 * 60 * 60 * 1000
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "None", // VERY IMPORTANT for cross-domain cookies
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    // 7: Response
-    return res.status(200).json({
+    // 7: Success Response
+    return new ResponseHandler({
       success: true,
-      message: 'Login successful',
-      user: {
+      statusCode: 200,
+      message: "Login successful",
+      data: {
         id: user._id,
         name: user.name,
         email: user.email,
-        avatar: user.avatar
-      }
-    });
-
+        avatar: user.avatar,
+      },
+    }).send(res);
   } catch (error) {
-    console.error('Login error:', error);
-    return res.status(500).json({
+    console.error("Login error:", error);
+
+    return new ResponseHandler({
       success: false,
-      message: 'Server error'
-    });
+      statusCode: 500,
+      message: "Server error",
+      errors: [error.message],
+    }).send(res);
   }
 };
 
