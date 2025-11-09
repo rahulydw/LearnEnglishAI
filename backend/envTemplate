@@ -1,0 +1,8 @@
+PORT=//PORT
+DB_NAME=//Chat2Learn
+ORIGIN=//http://localhost:5173
+JWT_SECRET=//secretkey
+BASE_URL=//http://localhost:5000
+MONGO_URI=//mongodburi
+GOOGLE_CLIENT_ID=//clint id
+GOOGLE_CLIENT_SECRET=//client secret
