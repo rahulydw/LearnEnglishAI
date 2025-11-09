@@ -25,7 +25,7 @@ const LeftSidebar = ({ userData }) => {
                     <FaComments />
                 </span>
                 <div className={`flex ${sidebar ? 'flex-row justify-center items-center gap-5' : 'flex-col justify-center items-center gap-2'}`}>
-                    {sidebar && <span className="text-2xl font-lobster tracking-wide text-white/90">Chat-Club</span>}
+                    {sidebar && <span className="text-2xl font-lobster tracking-wide text-white/90">Talk-One</span>}
                     {sidebar ? (
                         <RiMenuFoldFill className="text-2xl text-white/90 cursor-pointer" onClick={() => setSidebar(prev => !prev)} />
                     ) : (

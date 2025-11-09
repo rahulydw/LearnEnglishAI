@@ -274,7 +274,7 @@ const LandingPage = () => {
             <span className='flex justify-center items-center px-2 w-8 h-8 rounded-md text-white text-xl bg-neutral-800 hover:bg-neutral-900'>
               <FaComments />
             </span>
-            <span className='text-2xl font-lobster tracking-wide text-neutral-600'>Chat-Club</span>
+            <span className='text-2xl font-lobster tracking-wide text-neutral-600'>Talk-One</span>
           </div>
           {/* MenuList */}
           <ul className='hidden lg:flex justify-center items-center'>
