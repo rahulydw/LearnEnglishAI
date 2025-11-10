@@ -6,16 +6,28 @@ import { TbSettings2 } from "react-icons/tb";
 import { RiMenuFold2Fill, RiMenuFoldFill } from "react-icons/ri";
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { Logout } from '@/services/AuthServices';
+import toast from 'react-hot-toast';
 
 const LeftSidebar = ({ userData }) => {
     const [sidebar, setSidebar] = useState(true);
+    const navigate = useNavigate();
     const sidebarNav = [
         { title: "Home", icon: MdOutlineHome, link: "/chat" },
         { title: "Saved Chats", icon: MdBookmarkBorder, link: "/chats-records" },
         { title: "Vocabulary", icon: IoMdBook, link: "/vocabulary" },
         { title: "Settings", icon: TbSettings2, link: "/settings" },
     ];
+
+    // LogoutSession
+    const LogoutSession = async () => {
+        const response = await Logout();
+        if (response.success) {
+            toast.success(response.message || "Logout Sucess");
+            navigate(response.data.redirectUrl)
+        };
+    };
 
     return (
         <div className={`hidden h-full lg:flex flex-col ${sidebar ? 'w-[250px]' : 'w-[60px]'} bg-gray-900 overflow-hidden rounded-tr-md rounded-br-sm transition-all duration-300 ease-linear select-none`}>
@@ -88,6 +100,29 @@ const LeftSidebar = ({ userData }) => {
                 </Avatar>
                 {sidebar && <span className="flex justify-center items-center text-xl text-white font-playfair">Rahul Yadav</span>}
             </div>
+
+            <li className={`${sidebar ? 'w-full' : 'w-fit'} my-2 rounded-xl cursor-pointer text-white/90 hover:text-red-500 transition` onClick={LogoutSession}>
+                {sidebar ? (
+                    <div className="flex items-center gap-3 px-3 py-2 rounded-xl justify-start hover:bg-red-500/20">
+                        <LogOut className="w-6 h-6" />
+                        {sidebar && <span className="text-lg font-semibold">Logout</span>}
+                    </div>
+                ) : (
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <div className="flex items-center px-3 py-2 rounded-xl justify-center hover:bg-red-500/20">
+                                <LogOut className="w-6 h-6" />
+                            </div>
+                        </TooltipTrigger>
+
+                        <TooltipContent
+                            side="right"
+                            className="bg-red-600 text-white p-2 rounded-md font-semibold" >
+                            Logout
+                        </TooltipContent>
+                    </Tooltip>
+                )}
+            </li>
         </div>
     );
 };

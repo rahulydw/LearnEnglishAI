@@ -18,3 +18,9 @@ export const LatestReviews = async () => {
   const response = api.get("/api/v1/landing-page/reviews-latest");
   return response;
 }
+
+// Logout 
+export const Logout = async () => {
+  const response = api.get("/api/auth/logout");
+  return response;
+}
