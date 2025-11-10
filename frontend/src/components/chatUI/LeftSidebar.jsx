@@ -91,36 +91,36 @@ const LeftSidebar = ({ userData }) => {
             <hr className="h-[1px] bg-gray-300/60" />
 
             {/* Profile */}
-            <div className={`w-[90%] h-[50px] mx-auto flex ${sidebar ? 'justify-start' : 'justify-center'} items-center gap-6 px-2 cursor-pointer`}>
+            <div
+                className={`w-[90%] h-[50px] mx-auto flex ${sidebar ? 'justify-start' : 'justify-center'
+                    } items-center gap-6 px-2 cursor-pointer`}
+            >
                 <Avatar className="w-[32px] h-[32px]">
                     <AvatarImage src={userData?.avatar} />
                     <AvatarFallback>{userData?.name}</AvatarFallback>
                 </Avatar>
-                {sidebar && <span className="flex justify-center items-center text-xl text-white font-playfair">Rahul Yadav</span>}
+                {sidebar && (
+                    <span className="flex justify-center items-center text-xl text-white font-playfair">
+                        Rahul Yadav
+                    </span>
+                )}
             </div>
 
-            <li onClick={LogoutSession} className={`${sidebar ? 'w-full' : 'w-fit'} my-2 rounded-xl cursor-pointer text-white/90 hover:text-red-500 transition`}>
-                {sidebar ? (
-                    <div className="flex items-center gap-3 px-3 py-2 rounded-xl justify-start hover:bg-red-500/20">
-                        <LogOut className="w-6 h-6" />
-                        {sidebar && <span className="text-lg font-semibold">Logout</span>}
-                    </div>
-                ) : (
-                    <Tooltip>
-                        <TooltipTrigger>
-                            <div className="flex items-center px-3 py-2 rounded-xl justify-center hover:bg-red-500/20">
-                                <LogOut className="w-6 h-6" />
-                            </div>
-                        </TooltipTrigger>
+            <li
+                onClick={LogoutSession}
+                className={`w-[90%] h-[50px] mx-auto flex ${sidebar ? 'justify-start' : 'justify-center'
+                    } items-center gap-6 px-2 cursor-pointer rounded-xl 
+  text-white/90 hover:text-red-500 hover:bg-red-500/20 transition`}
+            >
+                <LogOut className="w-6 h-6" />
 
-                        <TooltipContent
-                            side="right"
-                            className="bg-red-600 text-white p-2 rounded-md font-semibold" >
-                            Logout
-                        </TooltipContent>
-                    </Tooltip>
+                {sidebar && (
+                    <span className="text-xl font-semibold text-white">
+                        Logout
+                    </span>
                 )}
             </li>
+
         </div>
     );
 };

@@ -10,7 +10,7 @@ import generateUniqueUsername from "../utils/generateUniqueUsername.js";
 // SANITIZE HELPER
 const sanitizeUser = (userDoc) => {
   const user = userDoc.toObject();
-  const { password, createdAt, updatedAt, __v, ...safe } = user;
+  const { password, createdAt, updatedAt, __v, email, ...safe } = user;
   return safe;
 };
 

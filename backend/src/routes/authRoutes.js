@@ -75,7 +75,12 @@ router.get("/logout", (req, res) => {
     secure: process.env.NODE_ENV === "production",
     sameSite: "None",
   });
-  return res.redirect(`${CLIENT_URL}/`);
+  return new ResponseHandler({
+    success: true,
+    statusCode: 200,
+    message: "Logout Successfull",
+    data: { redirectUrl: CLIENT_URL },
+  }).send(res);
 });
 
 //  Google Auth Failed
