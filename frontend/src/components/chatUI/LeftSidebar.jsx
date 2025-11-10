@@ -7,6 +7,7 @@ import { RiMenuFold2Fill, RiMenuFoldFill } from "react-icons/ri";
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { NavLink } from "react-router-dom";
+import { LogOut } from 'lucide-react';
 
 const LeftSidebar = ({ userData }) => {
     const [sidebar, setSidebar] = useState(true);
