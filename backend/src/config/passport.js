@@ -1,56 +1,57 @@
 import dotenv from "dotenv";
 dotenv.config();
+
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
-import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
+import { Strategy as JwtStrategy } from "passport-jwt";
 import User from "../models/User.model.js";
-import generateRandomPassword from "../utils/generateRandomPassword.js";
 import generateUniqueUsername from "../utils/generateUniqueUsername.js";
 
-// Cookie Extract:
+// SANITIZE HELPER
+const sanitizeUser = (userDoc) => {
+  const user = userDoc.toObject();
+  const { password, createdAt, updatedAt, __v, ...safe } = user;
+  return safe;
+};
+
+// Cookie Extractor (JWT)
 function cookieExtractor(req) {
   let token = null;
-  if (req && req.cookies) {
-    token = req.cookies.token;
-  }
+  if (req && req.cookies) token = req.cookies.token;
   return token;
 }
 
-// Passport Strategy Setup :
+/* ==========================================================
+     GOOGLE STRATEGY
+========================================================== */
 passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: process.env.GOOGLE_REDIRECT_URL,
+      callbackURL: process.env.GOOGLE_REDIRECT_URL, // must match Google Console
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
         let user = await User.findOne({ googleId: profile.id });
 
+        // If new user → create
         if (!user) {
-          //  Password aur Username Generate
-          let passwd = "Chat45@"; // Or generateRandomPassword();
-          let uniqueUsername = await generateUniqueUsername(
-            profile.displayName
-          );
+          const username = await generateUniqueUsername(profile.displayName);
 
-          //  New User Create
           user = new User({
             googleId: profile.id,
             name: profile.displayName,
-            username: uniqueUsername,
+            username,
             email: profile.emails[0].value,
             avatar: profile.photos[0].value,
-            password: passwd,
+            password: "Chat45@", // default or random
           });
 
           await user.save();
         }
-        const { password, createdAt, updatedAt, __v, email, ...safeUser } =
-          req.user;
 
-        return done(null, safeUser);
+        return done(null, sanitizeUser(user));
       } catch (err) {
         return done(err, null);
       }
@@ -58,7 +59,9 @@ passport.use(
   )
 );
 
-// Jwt Strategy for Verify :
+/* ==========================================================
+     JWT STRATEGY (Protected Routes)
+========================================================== */
 passport.use(
   new JwtStrategy(
     {
@@ -68,8 +71,10 @@ passport.use(
     async (payload, done) => {
       try {
         const user = await User.findById(payload.id);
-        if (user) return done(null, user);
-        return done(null, false);
+
+        if (!user) return done(null, false);
+
+        return done(null, sanitizeUser(user)); // always sanitized
       } catch (err) {
         return done(err, false);
       }
