@@ -6,13 +6,10 @@ import { TbSettings2 } from "react-icons/tb";
 import { RiMenuFold2Fill, RiMenuFoldFill } from "react-icons/ri";
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
-import { NavLink, useNavigate } from "react-router-dom";
-import { Logout } from '@/services/AuthServices';
-import toast from 'react-hot-toast';
+import { NavLink } from "react-router-dom";
 
 const LeftSidebar = ({ userData }) => {
     const [sidebar, setSidebar] = useState(true);
-    const navigate = useNavigate();
     const sidebarNav = [
         { title: "Home", icon: MdOutlineHome, link: "/chat" },
         { title: "Saved Chats", icon: MdBookmarkBorder, link: "/chats-records" },
@@ -101,7 +98,7 @@ const LeftSidebar = ({ userData }) => {
                 {sidebar && <span className="flex justify-center items-center text-xl text-white font-playfair">Rahul Yadav</span>}
             </div>
 
-            <li className={`${sidebar ? 'w-full' : 'w-fit'} my-2 rounded-xl cursor-pointer text-white/90 hover:text-red-500 transition` onClick={LogoutSession}>
+            <li onClick={LogoutSession} className={`${sidebar ? 'w-full' : 'w-fit'} my-2 rounded-xl cursor-pointer text-white/90 hover:text-red-500 transition`}>
                 {sidebar ? (
                     <div className="flex items-center gap-3 px-3 py-2 rounded-xl justify-start hover:bg-red-500/20">
                         <LogOut className="w-6 h-6" />
